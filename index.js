@@ -11,6 +11,7 @@ const app = express();
 // middleware that allows use to get data from the body
 app.use(express.json());
 
+
 // redirect to routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/private', require('./routes/private'));
