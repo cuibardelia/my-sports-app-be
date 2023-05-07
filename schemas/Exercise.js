@@ -26,7 +26,7 @@ const ExerciseSkeem = new mongoose.Schema({
 		type: String,
 		required: true
 	}],
-	// user specific fields
+	// trainer specific fields
 	repetitions: {
 		type: Number,
 		required: false,

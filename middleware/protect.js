@@ -1,7 +1,6 @@
 require('dotenv').config({path: "./config/.env"});
 
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.protect = async (request, response, next) => {
@@ -19,13 +18,13 @@ exports.protect = async (request, response, next) => {
     try{
        const decoded = jwt.verify(token, process.env.JWT_TOKEN);
 
-       const user = User.findById(decoded.id);
+       const client = Client.findById(decoded.id);
 
-       if(!user) {
-            return next(new ErrorResponse("User not found", 404));
+       if(!client) {
+            return next(new ErrorResponse("Client not found", 404));
        }
 
-       request.user = user;
+       request.client = client;
 
        next();
     } catch (err) {
