@@ -7,6 +7,7 @@ const Trainer = require('../schemas/Trainer');
 const Admin = require('../schemas/Admin');
 
 // TODO: retry w proper binding
+// :)))) no arrow fn...
 const hashPasswordAndSetUserType = async function (next) {
 	if (!this.isModified('password')) {
 		return next();
@@ -36,17 +37,6 @@ const hashPasswordAndSetUserType = async function (next) {
 	next();
 };
 
-const getUserTypeFromSchema = function (modelName) {
-	// Map the model name to the user type
-	const modelTypeMap = {
-		Client: 'client',
-		Trainer: 'trainer',
-		Admin: 'admin',
-	};
-
-	return modelTypeMap[modelName];
-};
-
 // FIXME
 const checkPassword = async function (password) {
 	return await bcrypt.compare(password, this.password);
@@ -62,6 +52,17 @@ const getResetPassToken = function () {
 	this.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
 
 	return resetToken;
+};
+
+const getUserTypeFromSchema = function (modelName) {
+	// Map the model name to the user type
+	const modelTypeMap = {
+		Client: 'client',
+		Trainer: 'trainer',
+		Admin: 'admin',
+	};
+
+	return modelTypeMap[modelName];
 };
 
 const getModel = function (userType) {
@@ -81,4 +82,15 @@ const getModel = function (userType) {
 	return model;
 };
 
-module.exports = { getModel, checkPassword, hashPasswordAndSetUserType, getSignedToken, getResetPassToken };
+const getUserSecret = (model) => {
+	const modelName = model.modelName;
+	const modelTypeMap = {
+		Client: process.env.JWT_CLIENT_SECRET,
+		Trainer: process.env.JWT_TRAINER_SECRET,
+		Admin: process.env.JWT_ADMIN_SECRET,
+	};
+
+	return modelTypeMap[modelName];
+};
+
+module.exports = { getModel, checkPassword, hashPasswordAndSetUserType, getSignedToken, getResetPassToken, getUserSecret  };
