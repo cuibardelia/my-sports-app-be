@@ -65,7 +65,7 @@ TrainerSchema.methods.checkPassword =  async function (password) {
 
 TrainerSchema.methods.getSignedToken = function() {
 	return jwt.sign({id: this._id}, process.env.JWT_TRAINER_SECRET, {
-		expiresIn: '10min'
+		expiresIn: '30min'
 	});
 };
 
@@ -73,7 +73,7 @@ TrainerSchema.methods.getResetPassToken = function() {
 	const resetToken = crypto.randomBytes(20).toString("hex");
 	this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
 	// makes sure it expires in 10 minutes;
-	this.resetPasswordExpire = Date.now() + 10 * (60 * 1000);
+	this.resetPasswordExpire = Date.now() + 30 * (60 * 1000);
 
 	return resetToken;
 };

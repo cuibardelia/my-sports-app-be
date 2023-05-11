@@ -3,6 +3,11 @@ const express = require('express');
 const { connectDB } = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
+const authRouter = require('./routes/auth');
+const adminRouter = require('./routes/admin');
+const clientRouter = require('./routes/client');
+const trainerRouter = require('./routes/trainer');
+
 // Connect to Mongo
 (async function() { await connectDB();}());
 
@@ -13,12 +18,13 @@ app.use(express.json());
 
 
 // redirect to routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/private', require('./routes/private'));
+app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
+app.use('/api/client', clientRouter);
+app.use('/api/trainer', trainerRouter);
 
 // Error Handler - last in the middleware
 app.use(errorHandler);
-
 
 const PORT = process.env.PORT || 5000;
 

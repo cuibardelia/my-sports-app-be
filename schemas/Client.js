@@ -47,7 +47,7 @@ ClientSchema.methods.checkPassword = async function(pwd) {
 ClientSchema.methods.getSignedToken = function() {
     // fun fact, generated secret via 'cypto' with randomBytes
     return jwt.sign({id: this._id}, process.env.JWT_CLIENT_SECRET, {
-        expiresIn: '10min'
+        expiresIn: '30min'
     });
 };
 
@@ -56,7 +56,7 @@ ClientSchema.methods.getResetPassToken = function() {
     // TODO: doc
     this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
     // makes sure it expires in 10 minutes;
-    this.resetPasswordExpire = Date.now() + 10 * (60 * 1000);
+    this.resetPasswordExpire = Date.now() + 30 * (60 * 1000);
 
    return resetToken;
 };

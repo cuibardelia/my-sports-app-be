@@ -1,21 +1,15 @@
 const Client = require('../schemas/Client');
 const Trainer = require('../schemas/Trainer');
-// const Admin = require('../schemas/Admin');
 const Exercise = require('../schemas/Exercise');
+const { getModel } = require('../utils/common');
 
 exports.favoriteExercise = async (request, response, next) => {
 	try {
 		const { id, name, bodyPart, equipment, gifUrl } = request.body;
-		const userId = request.header('user-id');
-		const userType = request.header('user-type');
+		const { user: { userType, _id } } = request;
 
-		// Validate the userType header
-		if (!['client', 'trainer'].includes(userType)) {
-			return response.status(400).json({ message: 'Invalid user type.' });
-		}
-
-		const model = userType === 'trainer' ? Trainer : Client;
-		const user = await model.findOne({ _id: userId });
+		const model = getModel(userType);
+		const user = await model.findOne({ _id });
 
 		if (!user) {
 			return response.status(404).json({ error: 'User not found.' });
@@ -54,14 +48,14 @@ exports.favoriteExercise = async (request, response, next) => {
 };
 
 exports.getFavoriteExercises = async (request, response, next) => {
-	const userId = request.header('user-id');
-	const userType = request.header('user-type');
+	const { user: { userType, _id } } = request;
+
 	try {
 		let user;
 		let favoriteExercises = [];
+		const model = getModel(userType)
 
-		const model = userType === 'trainer' ? Trainer : Client;
-		user = await model.findById(userId).populate('favoriteExercises');
+		user = await model.findById(_id).populate('favoriteExercises');
 
 		if (!user) {
 			return response.status(404).json({ error: 'User not found.' });
@@ -78,31 +72,20 @@ exports.getFavoriteExercises = async (request, response, next) => {
 exports.deleteExercise = async (request, response, next) => {
 	try {
 		const { exerciseId } = request.body;
-		const userType = request.header('user-type');
+		const exercise = await Exercise.findOne({ oId: exerciseId });
 
-		// Check if the user is an admin
-		// TODO: worth checking if the userId in in the admin collection + token? => ROUTING
-		// TODO: delete other admins
-		if (userType === 'admin') {
-			// const admin = await Admin.findOne({ _id: userId });
-			const exercise = await Exercise.findOne({ oId: exerciseId });
-
-			if (exercise) {
-				const exerciseIdToDelete = exercise._id;
-				// Delete the exercise in the trainers collection
-				await Trainer.updateMany({ favoriteExercises: exerciseIdToDelete }, { $pull: { favoriteExercises: exerciseIdToDelete } });
-				// Delete the exercise in  the clients collection
-				await Client.updateMany({ favoriteExercises: exerciseIdToDelete }, { $pull: { favoriteExercises: exerciseIdToDelete } });
-				exercise.remove();
-				// Exercise was deleted
-				return response.status(200).json({ message: 'Exercise deleted successfully.' });
-			} else {
-				// No exercise found with the specified oId
-				return response.status(404).json({ error: 'Exercise not found.' });
-			}
+		if (exercise) {
+			const exerciseIdToDelete = exercise._id;
+			// Delete the exercise in the trainers collection
+			await Trainer.updateMany({ favoriteExercises: exerciseIdToDelete }, { $pull: { favoriteExercises: exerciseIdToDelete } });
+			// Delete the exercise in  the clients collection
+			await Client.updateMany({ favoriteExercises: exerciseIdToDelete }, { $pull: { favoriteExercises: exerciseIdToDelete } });
+			exercise.remove();
+			// Exercise was deleted
+			return response.status(200).json({ message: 'Exercise deleted successfully.' });
 		} else {
-			// User is not an admin, return an error indicating insufficient permissions
-			return response.status(403).json({ error: 'Insufficient permissions to delete the exercise.' });
+			// No exercise found with the specified oId
+			return response.status(404).json({ error: 'Exercise not found.' });
 		}
 	} catch (error) {
 		next(error);

@@ -2,6 +2,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
+const Client = require('../schemas/Client');
+const Trainer = require('../schemas/Trainer');
+const Admin = require('../schemas/Admin');
+
 // TODO: retry w proper binding
 const hashPasswordAndSetUserType = async function (next) {
 	if (!this.isModified('password')) {
@@ -60,4 +64,21 @@ const getResetPassToken = function () {
 	return resetToken;
 };
 
-module.exports = { checkPassword, hashPasswordAndSetUserType, getSignedToken, getResetPassToken };
+const getModel = function (userType) {
+// Map the model name to the user type
+	const modelTypeMap = {
+		client: Client,
+		trainer: Trainer,
+		admin: Admin,
+	};
+
+	const model = modelTypeMap[userType];
+
+	if (!modelTypeMap[userType]) {
+		console.error('Incorrect userType provided for mapping')
+	}
+
+	return model;
+};
+
+module.exports = { getModel, checkPassword, hashPasswordAndSetUserType, getSignedToken, getResetPassToken };

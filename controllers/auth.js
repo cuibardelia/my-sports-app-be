@@ -6,41 +6,12 @@ const Admin = require('../schemas/Admin');
 const crypto = require('crypto');
 const ErrorResponse = require('../utils/errorResponse');
 const sendEmail = require('../utils/sendEmail');
-
 const grantRolesToUser = require('../utils/auth');
+const { getModel } = require('../utils/common');
 
-// TODO: refactor, reusability??
-exports.registerClient = async (request, response, next) => {
-    // response.send('Register route')
-    const {username, lastName, firstName, email, password} = request.body;
-
-    try {
-        const client = await Client.create({
-            username, lastName, firstName, email, password
-        })
-
-        sendToken(client, 201, response);
-    } catch (error) {
-      next(error);
-    }
-};
-
-exports.registerTrainer = async (request, response, next) => {
-    const { firstName, lastName, email, dateOfBirth, gender, phone, password } = request.body;
-
-    try {
-        const trainer = await Trainer.create({
-            firstName, lastName, email, password, dateOfBirth, gender, phone,
-        })
-
-        sendToken(trainer, 201, response);
-    } catch (error) {
-        next(error);
-    }
-};
 
 exports.registerAdmin = async (request, response, next) => {
-    const {email, password} = request.body;
+    const { email, password } = request.body;
 
     try {
         const admin = await Admin.create({
@@ -48,17 +19,62 @@ exports.registerAdmin = async (request, response, next) => {
         })
 
         await grantRolesToUser(email, password);
-
         sendToken(admin, 201, response);
     } catch (error) {
         next(error);
     }
 };
 
-const login = async (request, response, next, model) => {
-    const { email, password } = request.body;
+exports.register = async (request, response, next) => {
+    const { userType } = request.params;
+    const {
+        firstName,
+        lastName,
+        email,
+        password,
+        dateOfBirth,
+        gender,
+        phone,
+        username
+    } = request.body;
 
-    // good practice to check on BE side as well
+    try {
+        let user;
+
+        if (userType === 'client') {
+            user = await Client.create({
+                username,
+                lastName,
+                firstName,
+                email,
+                password
+            });
+        } else if (userType === 'trainer') {
+            user = await Trainer.create({
+                firstName,
+                lastName,
+                email,
+                password,
+                dateOfBirth,
+                gender,
+                phone
+            });
+        } else {
+            return response.status(400).json({ error: 'Invalid user type.' });
+        }
+
+        sendToken(user, 201, response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.login = async (request, response, next) => {
+    const { email, password } = request.body;
+    const userType = request.header('X-User-Type');
+    const model = getModel(userType);
+
+    // it's good practice to check on BE side as well
     if(!email || !password) {
         return next(new ErrorResponse("Please provide an email and password"), 400);
     }
@@ -91,20 +107,10 @@ const login = async (request, response, next, model) => {
     }
 };
 
-exports.clientLogin = async (request, response, next) => {
-    await login(request, response, next, Client);
-};
-
-exports.trainerLogin = async (request, response, next) => {
-    await login(request, response, next, Trainer);
-};
-
-exports.adminLogin = async (request, response, next) => {
-    await login(request, response, next, Admin);
-};
-
-const forgotPassword = async (request, response, next, model) => {
+exports.forgotPassword = async (request, response, next) => {
     const { email } = request.body;
+    const userType = request.header('X-User-Type');
+    const model = getModel(userType);
 
     try{
         const user = await model.findOne({ email });
@@ -145,19 +151,10 @@ const forgotPassword = async (request, response, next, model) => {
 
 };
 
-exports.clientForgotPassword = async (request, response, next) => {
-    await forgotPassword(request, response, next, Client);
-};
+exports.resetPassword = async (request, response, next) => {
+    const userType = request.header('X-User-Type');
+    const model = getModel(userType);
 
-exports.trainerForgotPassword = async (request, response, next) => {
-    await forgotPassword(request, response, next, Trainer);
-};
-
-exports.adminForgotPassword = async (request, response, next) => {
-    await forgotPassword(request, response, next, Admin);
-};
-
-const resetPassword = async (request, response, next, model) => {
     const ResetPwdToken = crypto.createHash("sha256").update(request.params.resetToken).digest('hex');
     try {
         const usr = await model.findOne({
@@ -185,18 +182,6 @@ const resetPassword = async (request, response, next, model) => {
     } catch (e) {
         next(e);
     }
-};
-
-exports.clientResetPassword = async (request, response, next) => {
-    await resetPassword(request, response, next, Client);
-};
-
-exports.trainerResetPassword = async (request, response, next) => {
-    await resetPassword(request, response, next, Trainer);
-};
-
-exports.adminResetPassword = async (request, response, next) => {
-    await resetPassword(request, response, next, Admin);
 };
 
 const sendToken = (user, statusCode, response) => {
