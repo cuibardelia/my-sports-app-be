@@ -1,65 +1,50 @@
 const mongoose = require('mongoose');
 
 // TODO: revisit
-const ExerciseSkeem = new mongoose.Schema({
+// TODO: class plan
+// trainer specific fields
+// repetitions: {
+// 	type: Number,
+// 		required: false,
+// },
+// caloriesPerRepetition: {
+// 	type: String,
+// 		required: false,
+// },
+// difficulty: {
+// 	type: Number,
+// 		required: true
+// },
+const ExerciseSchema = new mongoose.Schema({
+	oId: {
+		type: String,
+		required: [true, "How could ID be missing?"],
+	},
 	name: {
 		type: String,
-		required: [true, "Please add a username"]
+		required: [true, "Exercise name missing"]
 	},
-	description: {
-		type: String,
-		required: true
-	},
-	muscles: [{
-		type: String,
-		required: true
-	}],
-	equipment: [{
-		type: String,
-		required: true
-	}],
-	difficulty: {
-		type: Number,
-		required: true
-	},
-	videoUrls: [{
-		type: String,
-		required: true
-	}],
-	// trainer specific fields
-	repetitions: {
-		type: Number,
-		required: false,
-	},
-	caloriesPerRepetition: {
-		type: String,
-		required: false,
-	},
-});
-
-const exerciseSchema = new mongoose.Schema({
-	name: {
+	// description: {
+	// 	type: String,
+	// },
+	bodyPart: {
 		type: String,
 		required: true
 	},
-	description: {
+	equipment: {
 		type: String,
 		required: true
 	},
-	muscles: [{
+	gifUrl: {
 		type: String,
-		required: true
-	}],
-	equipment: [{
-		type: String,
-		required: true
-	}],
-	difficulty: {
-		type: Number,
-		required: true
+		required: [true, "Won't save without a pic"]
 	},
 	videoUrl: {
 		type: String,
-		required: true
+		required: false
 	}
 });
+
+const Exercise = mongoose.model("Exercise", ExerciseSchema);
+
+module.exports = Exercise;

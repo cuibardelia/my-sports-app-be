@@ -1,15 +1,14 @@
 require('dotenv').config({path: "./config/.env"});
 const express = require('express');
-const connectDBs = require('./config/db');
+const { connectDB } = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
 // Connect to Mongo
-// TODO: check async
-const { Client, Trainer } = connectDBs();
+(async function() { await connectDB();}());
 
 const app = express();
 
-// middleware that allows use to get data from the body
+// middleware that allows us to get data from the body
 app.use(express.json());
 
 
@@ -31,7 +30,3 @@ process.on("unhandledRejection", (err, promise) => {
     console.log(`⚠ Error occurred: ${err}`);
     server.close(() => process.exit(1));
 })
-
-// FIXME
-global.Client = Client;
-global.Trainer = Trainer;

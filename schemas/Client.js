@@ -1,51 +1,27 @@
 require('dotenv').config({path: "./config/.env"});
 
-const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
-// TODO: better email regex
-// TODO: reuse common fields
+const User = require('./User');
+
+// TODO: avatar
 const ClientSchema= new mongoose.Schema({
     username: {
         type: String,
         unique: true,
         required: [true, "Please add a username"]
     },
-    lastName: {
-        type: String,
-        required: false,
-    },
-    firstName: {
-        type: String,
-        required: false,
-    },
-    email: {
-        type: String,
-        required: [true, "Please add an email"],
-        unique: true,
-        trim: true,
-        match:[/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Please add a valid email"]
-    },
-    password: {
-        type: String,
-        required: [true, "Please add pwd"],
-        minlength: 6,
-        select: false,
-
-    },
-    // TODO: avatar
-    userType: {
-        type: String,
-        required: false,
-    },
     resetPasswordToken: String,
     resetPasswordExp: Date,
     weight: {
         type: Number
-    }
+    },
 });
+
+ClientSchema.add(User.schema);
 
 // pre-saving and post-saving via mongoose
 // no arrow function -> use of this
@@ -85,5 +61,6 @@ ClientSchema.methods.getResetPassToken = function() {
    return resetToken;
 };
 
-module.exports = ClientSchema;
+const Client = mongoose.model("Client", ClientSchema);
 
+module.exports = Client;
