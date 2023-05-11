@@ -1,5 +1,6 @@
 const Client = require('../schemas/Client');
 const Trainer = require('../schemas/Trainer');
+// const Admin = require('../schemas/Admin');
 const Exercise = require('../schemas/Exercise');
 
 exports.favoriteExercise = async (request, response, next) => {
@@ -69,6 +70,40 @@ exports.getFavoriteExercises = async (request, response, next) => {
 		favoriteExercises = user.favoriteExercises;
 
 		return response.status(200).json({ favoriteExercises });
+	} catch (error) {
+		next(error);
+	}
+};
+
+exports.deleteExercise = async (request, response, next) => {
+	try {
+		const { exerciseId } = request.body;
+		const userType = request.header('user-type');
+
+		// Check if the user is an admin
+		// TODO: worth checking if the userId in in the admin collection + token? => ROUTING
+		// TODO: delete other admins
+		if (userType === 'admin') {
+			// const admin = await Admin.findOne({ _id: userId });
+			const exercise = await Exercise.findOne({ oId: exerciseId });
+
+			if (exercise) {
+				const exerciseIdToDelete = exercise._id;
+				// Delete the exercise in the trainers collection
+				await Trainer.updateMany({ favoriteExercises: exerciseIdToDelete }, { $pull: { favoriteExercises: exerciseIdToDelete } });
+				// Delete the exercise in  the clients collection
+				await Client.updateMany({ favoriteExercises: exerciseIdToDelete }, { $pull: { favoriteExercises: exerciseIdToDelete } });
+				exercise.remove();
+				// Exercise was deleted
+				return response.status(200).json({ message: 'Exercise deleted successfully.' });
+			} else {
+				// No exercise found with the specified oId
+				return response.status(404).json({ error: 'Exercise not found.' });
+			}
+		} else {
+			// User is not an admin, return an error indicating insufficient permissions
+			return response.status(403).json({ error: 'Insufficient permissions to delete the exercise.' });
+		}
 	} catch (error) {
 		next(error);
 	}

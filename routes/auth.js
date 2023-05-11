@@ -4,7 +4,7 @@ const router = express.Router();
 const { registerClient, registerTrainer, registerAdmin, adminLogin, clientLogin, trainerLogin,
 	clientForgotPassword, trainerForgotPassword, clientResetPassword, trainerResetPassword} = require('../controllers/auth');
 
-const { favoriteExercise, getFavoriteExercises } = require('../controllers/features');
+const { favoriteExercise, getFavoriteExercises, deleteExercise } = require('../controllers/features');
 
 // FIXME: client env
 // TODO: refactor - use headers
@@ -20,5 +20,6 @@ router.route('/reset-password-client/:resetToken').put(clientResetPassword);
 router.route('/reset-password-trainer/:resetToken').put(trainerResetPassword);
 router.route('/favorite-exercise').post(favoriteExercise);
 router.route('/get-exercises').get(getFavoriteExercises);
+router.route('/delete-exercise').delete(deleteExercise);
 
 module.exports = router;

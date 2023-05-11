@@ -10,10 +10,10 @@ exports.protect = async (request, response, next) => {
         token = request.headers.authorization.split(" ")[1];
     }
 
+    // TODO: check each token, set routes for each kind of user
     if(!token) {
         return next(new ErrorResponse("Not Authorized to access this route", 401));
     }
-
 
     try{
        const decoded = jwt.verify(token, process.env.JWT_TOKEN);

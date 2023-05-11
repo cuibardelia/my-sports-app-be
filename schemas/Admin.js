@@ -60,8 +60,8 @@ AdminSchema.methods.checkPassword =  async function (password) {
 };
 
 AdminSchema.methods.getSignedToken = function() {
-	// TODO: create secret, better guarded admin
-	return jwt.sign({id: this._id}, process.env.JWT_TRAINER_SECRET, {
+	// For the Admin role we went with a stronger secret
+	return jwt.sign({id: this._id}, process.env.JWT_ADMIN_SECRET, {
 		expiresIn: '10min'
 	});
 };
