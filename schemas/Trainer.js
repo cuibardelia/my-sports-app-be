@@ -1,4 +1,4 @@
-require('dotenv').config({path: "./config/.env"});
+require('dotenv').config({path: './config/.env'});
 
 const mongoose = require('mongoose');
 const moment = require('moment');
@@ -24,7 +24,7 @@ const TrainerSchema = new mongoose.Schema({
 	specialties: {
 		type: [String],
 		// TODO: reuse this for Classes (names) -> get list of trainers fit for a class
-		enum: ["HIIT", "Pilates", "Body Pump", "Zumba", "Circuit Training", "TRX", "Body Combat", "Core", "Rebounder"],
+		enum: ['HIIT', 'Pilates', 'Body Pump', 'Zumba', 'Circuit Training', 'TRX', 'Body Combat', 'Core', 'Rebounder'],
 		required: false,
 	},
 	// TODO: photo,
@@ -40,7 +40,7 @@ const TrainerSchema = new mongoose.Schema({
 TrainerSchema.add(User.schema);
 TrainerSchema.plugin(dateFormat);
 
-TrainerSchema.pre("save", async function(next) {
+TrainerSchema.pre('save', async function(next) {
 	if (!this.isModified('password')) {
 		next();
 	}
@@ -72,14 +72,14 @@ TrainerSchema.methods.getSignedToken = function() {
 };
 
 TrainerSchema.methods.getResetPassToken = function() {
-	const resetToken = crypto.randomBytes(20).toString("hex");
-	this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+	const resetToken = crypto.randomBytes(20).toString('hex');
+	this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 	// makes sure it expires in 10 minutes;
 	this.resetPasswordExpire = Date.now() + 30 * (60 * 1000);
 
 	return resetToken;
 };
 
-const Trainer = mongoose.model("Trainer",TrainerSchema);
+const Trainer = mongoose.model('Trainer',TrainerSchema);
 
 module.exports = Trainer;

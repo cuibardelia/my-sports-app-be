@@ -1,4 +1,4 @@
-require('dotenv').config({path: "./config/.env"});
+require('dotenv').config({path: './config/.env'});
 
 const jwt = require('jsonwebtoken');
 const ErrorResponse = require('../utils/errorResponse');
@@ -11,8 +11,8 @@ const { getUserSecret } = require('../utils/common');
 const protect = async (request, response, next, model) => {
     let token;
 
-    if(request.headers.authorization && request.headers.authorization.startsWith("Bearer")) {
-        token = request.headers.authorization.split(" ")[1];
+    if(request.headers.authorization && request.headers.authorization.startsWith('Bearer')) {
+        token = request.headers.authorization.split(' ')[1];
     }
 
     if (!token) {

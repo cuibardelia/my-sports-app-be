@@ -11,14 +11,14 @@ const errorHandler = (error, request, response, next) => {
         err = new ErrorResponse(message, 400);
     }
 
-    if(error.name === "ValidationError") {
+    if(error.name === 'ValidationError') {
         const message = Object.values(error.errors).map((val) => val.message);
         err = new ErrorResponse(message, 400);
     }
 
     response.status(err.statusCode || 500).json({
         success: false,
-        error: error.message || "Server Error"
+        error: error.message || 'Server Error'
     });
 }
 

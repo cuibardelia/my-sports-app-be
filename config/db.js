@@ -6,7 +6,7 @@ const connectDB = async() => {
         // considered false?
     });
 
-    console.log("fitbudb: mongo connected");
+    console.log('fitbudb: mongo connected');
 };
 
 module.exports = {

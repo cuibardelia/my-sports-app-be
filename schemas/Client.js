@@ -1,4 +1,4 @@
-require('dotenv').config({path: "./config/.env"});
+require('dotenv').config({path: './config/.env'});
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -12,7 +12,7 @@ const ClientSchema= new mongoose.Schema({
     username: {
         type: String,
         unique: true,
-        required: [true, "Please add a username"]
+        required: [true, 'Please add a username']
     },
     resetPasswordToken: String,
     resetPasswordExp: Date,
@@ -25,9 +25,9 @@ ClientSchema.add(User.schema);
 
 // pre-saving and post-saving via mongoose
 // no arrow function -> use of this
-ClientSchema.pre("save", async function(next) {
+ClientSchema.pre('save', async function(next) {
     // first we make sure we don;t hash an already hashed pass
-    if(!this.isModified("password")) {
+    if(!this.isModified('password')) {
         next();
     }
 
@@ -52,15 +52,15 @@ ClientSchema.methods.getSignedToken = function() {
 };
 
 ClientSchema.methods.getResetPassToken = function() {
-    const resetToken = crypto.randomBytes(20).toString("hex");
+    const resetToken = crypto.randomBytes(20).toString('hex');
     // TODO: doc
-    this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
     // makes sure it expires in 10 minutes;
     this.resetPasswordExpire = Date.now() + 30 * (60 * 1000);
 
    return resetToken;
 };
 
-const Client = mongoose.model("Client", ClientSchema);
+const Client = mongoose.model('Client', ClientSchema);
 
 module.exports = Client;

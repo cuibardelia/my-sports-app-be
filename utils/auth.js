@@ -19,14 +19,14 @@ const grantRolesToUser = async (email, password) => {
 			return;
 		}
 
-		// Create the user in the "admin" database
+		// Create the user in the 'admin' database
 		await adminDb.command({
 			createUser: user.email,
 			pwd: password,
 			roles: [{ role: 'readWrite', db: 'fitbud' }], // Set appropriate roles
 		});
 
-		// Grant additional roles to the user in the "admin" database
+		// Grant additional roles to the user in the 'admin' database
 		await adminDb.command({
 			grantRolesToUser: user.email,
 			roles: [

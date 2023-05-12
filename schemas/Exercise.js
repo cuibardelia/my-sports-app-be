@@ -2,27 +2,15 @@ const mongoose = require('mongoose');
 
 // TODO: revisit
 // TODO: class plan
-// trainer specific fields
-// repetitions: {
-// 	type: Number,
-// 		required: false,
-// },
-// caloriesPerRepetition: {
-// 	type: String,
-// 		required: false,
-// },
-// difficulty: {
-// 	type: Number,
-// 		required: true
-// },
+
 const ExerciseSchema = new mongoose.Schema({
 	oId: {
 		type: String,
-		required: [true, "How could ID be missing?"],
+		required: [true, 'How could ID be missing?'],
 	},
 	name: {
 		type: String,
-		required: [true, "Exercise name missing"]
+		required: [true, 'Exercise name missing']
 	},
 	// description: {
 	// 	type: String,
@@ -37,7 +25,7 @@ const ExerciseSchema = new mongoose.Schema({
 	},
 	gifUrl: {
 		type: String,
-		required: [true, "Won't save without a pic"]
+		required: [true, 'Won\'t save without a pic']
 	},
 	videoUrl: {
 		type: String,
@@ -45,6 +33,6 @@ const ExerciseSchema = new mongoose.Schema({
 	}
 });
 
-const Exercise = mongoose.model("Exercise", ExerciseSchema);
+const Exercise = mongoose.model('Exercise', ExerciseSchema);
 
 module.exports = Exercise;

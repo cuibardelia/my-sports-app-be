@@ -30,7 +30,7 @@ exports.updateTrainer = async (request, response, next) => {
 				trainer.bio = bio;
 			}
 
-			// TODO: delete one of the sp
+			// TODO: delete just one of the sp
 			if (!!specialties) {
 				if (Array.isArray(specialties)) {
 					specialties.forEach((specialty) => {

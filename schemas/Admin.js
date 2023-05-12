@@ -12,14 +12,14 @@ const crypto = require('crypto');
 const AdminSchema = new mongoose.Schema({
 	email: {
 		type: String,
-		required: [true, "Please add an email"],
+		required: [true, 'Please add an email'],
 		unique: true,
 		trim: true,
-		match:[/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Please add a valid email"]
+		match:[/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, 'Please add a valid email']
 	},
 	password: {
 		type: String,
-		required: [true, "Please add pwd"],
+		required: [true, 'Please add pwd'],
 		minlength: 6,
 		select: false,
 	},
@@ -29,7 +29,7 @@ const AdminSchema = new mongoose.Schema({
 	}
 });
 
-AdminSchema.pre("save", async function(next) {
+AdminSchema.pre('save', async function(next) {
 	if (!this.isModified('password')) {
 		next();
 	}
@@ -67,14 +67,14 @@ AdminSchema.methods.getSignedToken = function() {
 };
 
 AdminSchema.methods.getResetPassToken = function() {
-	const resetToken = crypto.randomBytes(20).toString("hex");
-	this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+	const resetToken = crypto.randomBytes(20).toString('hex');
+	this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 	// makes sure it expires in 30 minutes;
 	this.resetPasswordExpire = Date.now() + 30 * (60 * 1000);
 
 	return resetToken;
 };
 
-const Admin = mongoose.model("Admin", AdminSchema);
+const Admin = mongoose.model('Admin', AdminSchema);
 
 module.exports = Admin;

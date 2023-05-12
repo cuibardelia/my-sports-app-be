@@ -5,22 +5,22 @@ const UserSchema = new mongoose.Schema({
 	createdAt: { type: Date, default: Date.now },
 	lastName: {
 		type: String,
-		required: [true, "Please add Last Name"],
+		required: [true, 'Please add Last Name'],
 	},
 	firstName: {
 		type: String,
-		required: [true, "Please add First Name"],
+		required: [true, 'Please add First Name'],
 	},
 	email: {
 		type: String,
-		required: [true, "Please add an email"],
+		required: [true, 'Please add an email'],
 		unique: true,
 		trim: true,
-		match:[/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Please add a valid email"]
+		match:[/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, 'Please add a valid email']
 	},
 	password: {
 		type: String,
-		required: [true, "Please add pwd"],
+		required: [true, 'Please add pwd'],
 		minlength: 6,
 		select: false,
 	},
@@ -32,8 +32,8 @@ const UserSchema = new mongoose.Schema({
 	// },
 	// phone: {
 	// 	type: String,
-	// 	required:[true, "Please add your mobile phone number"],
-	// 	match:[/^07\d{8}$/, "Please add a phone number"]
+	// 	required:[true, 'Please add your mobile phone number'],
+	// 	match:[/^07\d{8}$/, 'Please add a phone number']
 	// },
 	userType: {
 		type: String,

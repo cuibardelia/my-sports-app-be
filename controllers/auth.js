@@ -1,4 +1,4 @@
-require('dotenv').config({path: "./config/.env"});
+require('dotenv').config({path: './config/.env'});
 const Client = require('../schemas/Client');
 const Trainer = require('../schemas/Trainer');
 const Admin = require('../schemas/Admin');
@@ -76,11 +76,11 @@ exports.login = async (request, response, next) => {
 
     // it's good practice to check on BE side as well
     if(!email || !password) {
-        return next(new ErrorResponse("Please provide an email and password"), 400);
+        return next(new ErrorResponse('Please provide an email and password'), 400);
     }
 
     try {
-        const user = await model.findOne({email}).select("+password");
+        const user = await model.findOne({email}).select('+password');
 
         // model.find({}, function (err, users) {
         //     if (err) {
@@ -91,13 +91,13 @@ exports.login = async (request, response, next) => {
         // });
 
         if(!user) {
-            return next(new ErrorResponse("Invalid credentials"), 401);
+            return next(new ErrorResponse('Invalid credentials'), 401);
         }
 
         const isVerified = await user.checkPassword(password);
 
         if(!isVerified) {
-            return next(new ErrorResponse("Invalid password"), 404);
+            return next(new ErrorResponse('Invalid password'), 404);
         }
 
         sendToken(user, 200, response);
@@ -116,7 +116,7 @@ exports.forgotPassword = async (request, response, next) => {
         const user = await model.findOne({ email });
 
         if (!user) {
-            return next(new ErrorResponse("Unable to find email"), 404);
+            return next(new ErrorResponse('Unable to find email'), 404);
         }
 
         const resetToken = user.getResetPassToken();
@@ -132,17 +132,17 @@ exports.forgotPassword = async (request, response, next) => {
         try {
             await sendEmail({
                 to: user.email,
-                subject: "Looks like you forgot your password",
+                subject: 'Looks like you forgot your password',
                 text: message,
             });
 
-            response.status(200).json({success: true, data: "Yeehaaw! Email successfully sent"});
+            response.status(200).json({success: true, data: 'Yeehaaw! Email successfully sent'});
         } catch (error) {
             user.resetPasswordToken = undefined;
             user.resetPassworExpored = undefined;
 
             await user.save();
-            return next(new ErrorResponse("Cannot send email, God knows why", 500));
+            return next(new ErrorResponse('Cannot send email, God knows why', 500));
         }
 
     } catch (error) {
@@ -155,7 +155,7 @@ exports.resetPassword = async (request, response, next) => {
     const userType = request.header('X-User-Type');
     const model = getModel(userType);
 
-    const ResetPwdToken = crypto.createHash("sha256").update(request.params.resetToken).digest('hex');
+    const ResetPwdToken = crypto.createHash('sha256').update(request.params.resetToken).digest('hex');
     try {
         const usr = await model.findOne({
             resetPasswordToken: ResetPwdToken,
@@ -164,7 +164,7 @@ exports.resetPassword = async (request, response, next) => {
         });
 
         if(!usr) {
-          return next(new ErrorResponse("OoOps! Invalid reset token", 400))
+          return next(new ErrorResponse('OoOps! Invalid reset token', 400))
         }
 
         usr.password = request.body.password;
@@ -176,7 +176,7 @@ exports.resetPassword = async (request, response, next) => {
 
         response.status(201).json({
             success: true,
-            data: "Password reset successful"
+            data: 'Password reset successful'
 
         })
     } catch (e) {

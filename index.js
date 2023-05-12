@@ -1,4 +1,4 @@
-require('dotenv').config({path: "./config/.env"});
+require('dotenv').config({path: './config/.env'});
 const express = require('express');
 const { connectDB } = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
@@ -32,7 +32,7 @@ const server = app.listen(PORT, () => {
     console.log(`Server running, right on port ${PORT}`)
 })
 
-process.on("unhandledRejection", (err, promise) => {
+process.on('unhandledRejection', (err, promise) => {
     console.log(`⚠ Error occurred: ${err}`);
     server.close(() => process.exit(1));
 })
