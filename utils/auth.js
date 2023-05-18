@@ -6,7 +6,6 @@ const grantRolesToUser = async (email, password) => {
 	try {
 		const db = getConnection().db;
 
-		// TODO: delete all admin users + see how we can login them ----
 		const adminDb = db.admin();
 
 		// Find the user based on the email in the admins collection

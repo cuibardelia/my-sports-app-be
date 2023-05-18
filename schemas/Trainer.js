@@ -12,6 +12,7 @@ const User = require('./User');
 
 // select - whenever we query a trainer, do we want the pass too?
 const TrainerSchema = new mongoose.Schema({
+	// FIXME: doesn't transfer ok + need age
 	dateOfBirth: {
 		type: Date,
 		required: true,
@@ -34,7 +35,7 @@ const TrainerSchema = new mongoose.Schema({
 	userType: {
 		type: String,
 		required: false,
-	},
+	}
 });
 
 TrainerSchema.add(User.schema);
@@ -67,14 +68,14 @@ TrainerSchema.methods.checkPassword =  async function (password) {
 
 TrainerSchema.methods.getSignedToken = function() {
 	return jwt.sign({id: this._id}, process.env.JWT_TRAINER_SECRET, {
-		expiresIn: '30min'
+		expiresIn: '1d'
 	});
 };
 
 TrainerSchema.methods.getResetPassToken = function() {
 	const resetToken = crypto.randomBytes(20).toString('hex');
 	this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-	// makes sure it expires in 10 minutes;
+	// makes sure it expires in 30 minutes;
 	this.resetPasswordExpire = Date.now() + 30 * (60 * 1000);
 
 	return resetToken;

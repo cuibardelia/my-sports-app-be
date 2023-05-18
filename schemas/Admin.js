@@ -62,7 +62,7 @@ AdminSchema.methods.checkPassword =  async function (password) {
 AdminSchema.methods.getSignedToken = function() {
 	// For the Admin role we went with a stronger secret
 	return jwt.sign({id: this._id}, process.env.JWT_ADMIN_SECRET, {
-		expiresIn: '30min'
+		expiresIn: '1d'
 	});
 };
 

@@ -7,6 +7,7 @@ const authRouter = require('./routes/auth');
 const adminRouter = require('./routes/admin');
 const clientRouter = require('./routes/client');
 const trainerRouter = require('./routes/trainer');
+const cors = require('cors');
 
 // Connect to Mongo
 (async function() { await connectDB();}());
@@ -15,7 +16,7 @@ const app = express();
 
 // middleware that allows us to get data from the body
 app.use(express.json());
-
+app.use(cors());
 
 // redirect to routes
 app.use('/api/auth', authRouter);

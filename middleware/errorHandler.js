@@ -5,6 +5,7 @@ const errorHandler = (error, request, response, next) => {
     err.message = error.message;
 
     console.log(error);
+    // TODO: proper mapping for client app
 
     if(error.code === 11000) {
         const message = `Duplicate Field Value Enter`;

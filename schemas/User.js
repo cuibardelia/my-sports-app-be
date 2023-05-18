@@ -40,10 +40,8 @@ const UserSchema = new mongoose.Schema({
 		enum: ['admin', 'client', 'trainer'],
 		required: false,
 	},
-	favoriteExercises: [{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Exercise',
-	}],
+	favoriteExercises: [String],
+	picUrl: String,
 });
 
 module.exports = mongoose.model('User', UserSchema);

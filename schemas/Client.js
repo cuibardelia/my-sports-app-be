@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const User = require('./User');
 
 // TODO: avatar
+// TODO: age calculation
 const ClientSchema= new mongoose.Schema({
     username: {
         type: String,
@@ -16,9 +17,13 @@ const ClientSchema= new mongoose.Schema({
     },
     resetPasswordToken: String,
     resetPasswordExp: Date,
-    weight: {
-        type: Number
-    },
+    currentWeight: Number,
+    goalWeight: Number,
+    height: Number,
+    favoriteTrainers:  [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Trainer',
+    }],
 });
 
 ClientSchema.add(User.schema);
@@ -47,7 +52,7 @@ ClientSchema.methods.checkPassword = async function(pwd) {
 ClientSchema.methods.getSignedToken = function() {
     // fun fact, generated secret via 'cypto' with randomBytes
     return jwt.sign({id: this._id}, process.env.JWT_CLIENT_SECRET, {
-        expiresIn: '30min'
+        expiresIn: '1d'
     });
 };
 
@@ -55,7 +60,7 @@ ClientSchema.methods.getResetPassToken = function() {
     const resetToken = crypto.randomBytes(20).toString('hex');
     // TODO: doc
     this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    // makes sure it expires in 10 minutes;
+    // makes sure it expires in 30 minutes;
     this.resetPasswordExpire = Date.now() + 30 * (60 * 1000);
 
    return resetToken;

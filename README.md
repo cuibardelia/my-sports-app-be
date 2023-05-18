@@ -7,7 +7,6 @@ Scripts:
 
 FUNCTIONALITIES:
 - offline logging (i.e. my watch died, I can manually log based on estimated effort or past activity)
-- favorite exercises 
 - trainer should have access to register via invite
 - trainer creates personal plan 
 - favorite playlists

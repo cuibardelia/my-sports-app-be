@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 
 // TODO: revisit
 // TODO: class plan
-
 const ExerciseSchema = new mongoose.Schema({
-	oId: {
+	id: {
 		type: String,
 		required: [true, 'How could ID be missing?'],
+		unique: true,
 	},
 	name: {
 		type: String,
