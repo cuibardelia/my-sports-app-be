@@ -7,6 +7,8 @@ const Client = require('../schemas/Client');
 const Trainer = require('../schemas/Trainer');
 const Admin = require('../schemas/Admin');
 const { getUserSecret } = require('../utils/common');
+const { getModel } = require('../utils/common');
+
 
 const protect = async (request, response, next, model) => {
     let token;
@@ -35,6 +37,14 @@ const protect = async (request, response, next, model) => {
     }
 };
 
+const protectUser = async (request, response, next) => {
+    const userType = request.header('X-User-Type');
+
+    const model = getModel(userType);
+
+    await protect(request, response, next, model);
+};
+
 const protectAdmin = async (request, response, next) => {
     await protect(request, response, next, Admin);
 };
@@ -47,4 +57,4 @@ const protectTrainer = async (request, response, next) => {
     await protect(request, response, next, Trainer);
 };
 
-module.exports = { protectAdmin, protectClient, protectTrainer };
+module.exports = { protectAdmin, protectClient, protectTrainer, protectUser };

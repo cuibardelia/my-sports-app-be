@@ -1,7 +1,6 @@
 require('dotenv').config({path: './config/.env'});
 
 const mongoose = require('mongoose');
-const moment = require('moment');
 const dateFormat = require('mongoose-date-format');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -13,11 +12,6 @@ const User = require('./User');
 // select - whenever we query a trainer, do we want the pass too?
 const TrainerSchema = new mongoose.Schema({
 	// FIXME: doesn't transfer ok + need age
-	dateOfBirth: {
-		type: Date,
-		required: true,
-		set: (value) => moment(value, 'DD-MM-YYYY').toDate()
-	},
 	bio: {
 		type: String,
 		required: false,
@@ -28,7 +22,6 @@ const TrainerSchema = new mongoose.Schema({
 		enum: ['HIIT', 'Pilates', 'Body Pump', 'Zumba', 'Circuit Training', 'TRX', 'Body Combat', 'Core', 'Rebounder'],
 		required: false,
 	},
-	// TODO: photo,
 	resetPasswordToken: String,
 	resetPasswordExp: Date,
 	isPublished: Boolean,
@@ -46,11 +39,11 @@ TrainerSchema.pre('save', async function(next) {
 		next();
 	}
 
-	Trainer.find({}, function (err, clients) {
+	Trainer.find({}, function (err, trainers) {
 		if (err) {
 			console.error(err);
 		} else {
-			console.log(clients);
+			// console.log(trainers);
 		}
 	});
 

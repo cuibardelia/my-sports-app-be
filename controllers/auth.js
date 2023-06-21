@@ -7,8 +7,7 @@ const crypto = require('crypto');
 const ErrorResponse = require('../utils/errorResponse');
 const sendEmail = require('../utils/sendEmail');
 const grantRolesToUser = require('../utils/auth');
-const { getModel } = require('../utils/common');
-
+const { getModel, getAge } = require('../utils/common');
 
 exports.registerAdmin = async (request, response, next) => {
     const { email, password } = request.body;
@@ -40,24 +39,19 @@ exports.register = async (request, response, next) => {
 
     try {
         let user;
+        const commonFields = { lastName, firstName, email, password, gender, phone };
 
         if (userType === 'client') {
             user = await Client.create({
                 username,
-                lastName,
-                firstName,
-                email,
-                password
+            ...commonFields
             });
         } else if (userType === 'trainer') {
+           const age = getAge(dateOfBirth);
             user = await Trainer.create({
-                firstName,
-                lastName,
-                email,
-                password,
+            ...commonFields,
                 dateOfBirth,
-                gender,
-                phone
+                age,
             });
         } else {
             return response.status(400).json({ error: 'Invalid user type.' });
@@ -91,13 +85,13 @@ exports.login = async (request, response, next) => {
         // });
 
         if(!user) {
-            return next(new ErrorResponse('Invalid credentials'), 401);
+            return next(new ErrorResponse(`This email is not registered yet.`), 401);
         }
 
         const isVerified = await user.checkPassword(password);
 
         if(!isVerified) {
-            return next(new ErrorResponse('Invalid password'), 404);
+            return next(new ErrorResponse('Invalid password. Please retry.'), 404);
         }
 
         sendToken(user, 200, response);
@@ -177,7 +171,6 @@ exports.resetPassword = async (request, response, next) => {
         response.status(201).json({
             success: true,
             data: 'Password reset successful'
-
         })
     } catch (e) {
         next(e);
@@ -188,3 +181,134 @@ const sendToken = (user, statusCode, response) => {
     const accessToken = user.getSignedToken();
     response.status(statusCode).json({success: true, accessToken, user})
 }
+
+exports.getObjectiveStats = async (request, response, next) => {
+    try {
+        const totalClients = await Client.countDocuments(); // Total number of clients
+        const clientsWithObjective = await Client.countDocuments({ 'objectives.dateAchieved': { $exists: true } }); // Number of clients with achieved objectives
+
+        const percentageAchieved = (clientsWithObjective / totalClients) * 100; // Percentage of clients with achieved objectives
+
+        const objectives = await Client.aggregate([
+            {
+                $match: {
+                    'objectives.dateAchieved': { $exists: true },
+                },
+            },
+            {
+                $project: {
+                    timeToAchieve: {
+                        $subtract: [
+                            { $toDate: { $arrayElemAt: ['$objectives.dateAchieved', 0] } },
+                            { $toDate: { $arrayElemAt: ['$objectives.dateInitial', 0] } },
+                        ],
+                    },
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    averageTimeToAchieve: { $avg: '$timeToAchieve' }, // Calculate average time to achieve
+                },
+            },
+        ]);
+
+        const averageTimeToAchieve = objectives.length > 0 ? objectives[0].averageTimeToAchieve : 0;
+
+
+        return response.status(200).json({ success: true, stat:  { percentageAchieved,
+            averageTimeToAchieve} });
+
+    } catch (e) {
+        next(e);
+    }
+};
+
+exports.getAgeIntervals = async (request, response, next) => {
+    try {
+        const ageIntervals = await Client.aggregate([
+            {
+                $addFields: {
+                    age: {
+                        $subtract: [
+                            new Date(),
+                            { $toDate: '$dateOfBirth' }
+                        ]
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    age: {
+                        $divide: [
+                            '$age',
+                            1000 * 60 * 60 * 24 * 365
+                        ]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    interval_18_30: {
+                        $sum: {
+                            $cond: [
+                                { $and: [{ $gte: ['$age', 18] }, { $lt: ['$age', 30] }] },
+                                1,
+                                0
+                            ]
+                        }
+                    },
+                    interval_30_45: {
+                        $sum: {
+                            $cond: [
+                                { $and: [{ $gte: ['$age', 30] }, { $lt: ['$age', 45] }] },
+                                1,
+                                0
+                            ]
+                        }
+                    },
+                    interval_45_60: {
+                        $sum: {
+                            $cond: [
+                                { $and: [{ $gte: ['$age', 45] }, { $lt: ['$age', 60] }] },
+                                1,
+                                0
+                            ]
+                        }
+                    },
+                    interval_over_60: {
+                        $sum: {
+                            $cond: [
+                                { $gte: ['$age', 60] },
+                                1,
+                                0
+                            ]
+                        }
+                    }
+                }
+            }
+        ]);
+
+        const result = ageIntervals.length > 0 ? ageIntervals[0] : { interval_18_30: 0, interval_30_45: 0, interval_45_60: 0, interval_over_60: 0 };
+
+        return response.status(200).json({ success: true, ageIntervals: result });
+
+    } catch (e) {
+        next(e);
+    }
+};
+
+exports.getTrainers = async (request, response, next) => {
+    try {
+        const users = await Trainer.find();
+
+        if (users) {
+            return response.status(200).json({success: true, users});
+        } else {
+            return response.status(404).json({ error: 'No such users yet' });
+        }
+    } catch (error) {
+        next(error);
+    }
+};

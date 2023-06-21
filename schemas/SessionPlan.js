@@ -1,21 +1,18 @@
 const mongoose = require('mongoose');
 
 const SessionPlanSchema = new mongoose.Schema({
+	name: {
+		type: String,
+		unique: true,
+	},
 	trainer: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Trainer',
 		required: true,
 	},
-	client: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Client',
-	},
-	date: {
-		type: Date,
-	},
 	exercises: [{
-		exercise: {
-			type: mongoose.Schema.Types.ObjectId,
+		id: {
+			type: String,
 			ref: 'Exercise',
 			required: true,
 		},
@@ -27,15 +24,24 @@ const SessionPlanSchema = new mongoose.Schema({
 			type: Number,
 			required: true,
 		},
-		notes: {
-			type: String,
-			required: false,
-		},
-		difficulty: {
-			type: String,
-			enum: ['Easy', 'Moderate', 'High']
-		}
 	}],
+	notes: {
+		type: String,
+		required: false,
+	},
+	difficulty: {
+		type: String,
+		enum: ['Easy', 'Moderate', 'High']
+	},
+	equipment: {
+		type: [String],
+	},
+	targets: {
+		type: [String],
+	},
+	expectedResult: {
+		mediumCaloriesBurn: Number,
+	}
 });
 
 const SessionPlan = mongoose.model('SessionPlan', SessionPlanSchema);

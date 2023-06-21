@@ -4,7 +4,7 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const { protectClient } = require('../middleware/protect')
 const { addFavoriteExercise, removeFavoriteExercise, getFavoriteExercises, getTrainers, uploadPic } = require('../controllers/commonFeatures');
-const {  getPersonalTrainers, updateSettings, addPersonalTrainer } = require('../controllers/clientFeatures');
+const {  getPersonalTrainers, updateSettings, addPersonalTrainer, updatePhoto, getAppointments } = require('../controllers/clientFeatures');
 
 
 router.use(protectClient);
@@ -16,5 +16,8 @@ router.post('/add-personal-trainer', addPersonalTrainer);
 router.get('/get-personal-trainers', getPersonalTrainers);
 router.post('/upload', upload.single('file'), uploadPic);
 router.put('/update-settings', updateSettings);
+router.put('/update-photo', updatePhoto);
+router.get('/get-appointments', getAppointments);
+// router.post('/weight-stats', getUserWeightStats);
 
 module.exports = router;

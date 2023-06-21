@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const moment = require('moment-timezone');
+moment.tz.setDefault('UTC');
 
 const Client = require('../schemas/Client');
 const Trainer = require('../schemas/Trainer');
@@ -93,4 +95,13 @@ const getUserSecret = (model) => {
 	return modelTypeMap[modelName];
 };
 
-module.exports = { getModel, checkPassword, hashPasswordAndSetUserType, getSignedToken, getResetPassToken, getUserSecret  };
+const getAge = (ageString) => {
+	if (!ageString) {
+		return 0;
+	}
+
+	const birth = moment(ageString, 'YYYY-MM-DD').toDate();
+	return moment().diff(birth, 'years');
+};
+
+module.exports = { getModel, checkPassword, hashPasswordAndSetUserType, getSignedToken, getResetPassToken, getUserSecret, getAge  };

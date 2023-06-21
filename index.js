@@ -7,6 +7,8 @@ const authRouter = require('./routes/auth');
 const adminRouter = require('./routes/admin');
 const clientRouter = require('./routes/client');
 const trainerRouter = require('./routes/trainer');
+const userRouter = require('./routes/user');
+
 const cors = require('cors');
 
 // Connect to Mongo
@@ -23,6 +25,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/client', clientRouter);
 app.use('/api/trainer', trainerRouter);
+app.use('/api/user', userRouter);
 
 // Error Handler - last in the middleware
 app.use(errorHandler);

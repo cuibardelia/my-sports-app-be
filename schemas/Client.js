@@ -7,8 +7,6 @@ const crypto = require('crypto');
 
 const User = require('./User');
 
-// TODO: avatar
-// TODO: age calculation
 const ClientSchema= new mongoose.Schema({
     username: {
         type: String,
@@ -19,6 +17,16 @@ const ClientSchema= new mongoose.Schema({
     resetPasswordExp: Date,
     currentWeight: Number,
     goalWeight: Number,
+    weightStats: [{
+        date: Date,
+        value: Number,
+    }],
+    objectives: [{
+        initialWeight: Number,
+        dateInitial: Date,
+        goalWeight: Number,
+        dateAchieved: Date,
+    }],
     height: Number,
     favoriteTrainers:  [{
         type: mongoose.Schema.Types.ObjectId,

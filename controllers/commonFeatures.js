@@ -1,7 +1,10 @@
 const Trainer = require('../schemas/Trainer');
+const Client = require('../schemas/Client');
+const Appointment = require('../schemas/Appointment');
 const Exercise = require('../schemas/Exercise');
 const { v2: cloudinary } = require('cloudinary');
-
+const moment = require('moment-timezone');
+moment.tz.setDefault('UTC');
 
 const getUsers = async (request, response, next, model) => {
 	try {
@@ -52,7 +55,7 @@ const getFavoriteExercises = async (request, response, next) => {
 		const favoriteExerciseIds = user.favoriteExercises || [];
 		const favoriteExercises = await Exercise.find({ id: { $in: favoriteExerciseIds } });
 
-		return response.status(200).json({ success: true, data: favoriteExercises });
+		return response.status(200).json({ success: true, data: favoriteExerciseIds });
 	} catch (error) {
 		next(error);
 	}
@@ -85,7 +88,6 @@ const getFavoriteExercises = async (request, response, next) => {
 		// Add the exercise original ID to the client's favoriteExercises array
 		user.favoriteExercises.push(exerciseId);
 
-		// Save the user document with the new favorites
 		await user.save();
 
 		return response.status(200).json({success: true, user});
@@ -106,6 +108,87 @@ const uploadPic  = async (request, response, next) => {
 	}
 }
 
+const getWinners = async (request, response, next) => {
+	try {
+		const startDate = moment().startOf('isoWeek').toDate();
+		const endDate = moment().endOf('isoWeek').toDate();
+
+		const appointmentsThisWeek = await Appointment.find({
+			startDate: { $gte: startDate, $lte: endDate }
+		});
+
+		const appointmentsCount = {};
+		appointmentsThisWeek.forEach(appointment => {
+			appointment.clients.forEach(clientId => {
+				if (appointmentsCount[clientId]) {
+					appointmentsCount[clientId]++;
+				} else {
+					appointmentsCount[clientId] = 1;
+				}
+			});
+		});
+
+		const clientIds = Object.keys(appointmentsCount);
+		const topClients = await Client.find({ _id: { $in: clientIds } });
+
+		const sortedClients = topClients.sort(
+			(a, b) => appointmentsCount[b._id] - appointmentsCount[a._id]
+		);
+
+		const topClientsWithCount = [];
+		let prevCount = null;
+
+		for (const element of sortedClients) {
+			const client = element;
+			const appointmentCount = appointmentsCount[client._id];
+
+			if (topClientsWithCount.length < 2 || appointmentCount === prevCount) {
+				topClientsWithCount.push({ client, appointmentCount });
+			} else {
+				break;
+			}
+
+			prevCount = appointmentCount;
+		}
+
+		return response.status(200).json({ topClients: topClientsWithCount });
+	} catch (error) {
+		next(error);
+	}
+};
+
+const getObjectiveAttainers = async (request, response, next) => {
+	try {
+		const clients = await Client.find({
+			'objectives.dateAchieved': { $exists: true },
+		})
+			.sort({ 'objectives.dateAchieved': -1 })
+			.limit(2)
+			.select('username picUrl objectives.dateAchieved objectives.initialWeight objectives.goalWeight')
+			.lean();
+
+		const result = clients.map((client) => {
+			const { username, picUrl, objectives } = client;
+			// TODO: latest objective
+			const { dateAchieved, initialWeight, goalWeight } = objectives[0];
+			const weightDifference = initialWeight - goalWeight;
+			const weightStatus = weightDifference > 0 ? `${weightDifference}kg lost` : `${Math.abs(weightDifference)}kg gained`;
+
+			return {
+				username,
+				picUrl,
+				dateAchieved,
+				weightStatus,
+			};
+		});
+
+		return response.status(200).json({ success: true, clients: result });
+	} catch (error) {
+		next(error);
+	}
+};
+
+
 module.exports = {
-	getUsers, getTrainers, uploadPic, addFavoriteExercise, getFavoriteExercises, removeFavoriteExercise
+	getUsers, getTrainers, uploadPic, addFavoriteExercise, getFavoriteExercises, removeFavoriteExercise, getWinners, getObjectiveAttainers
 };
