@@ -312,3 +312,30 @@ exports.getTrainers = async (request, response, next) => {
         next(error);
     }
 };
+exports.getExercises = async (request, response, next) => {
+    try {
+        const mostFavoriteExercises = await Client.aggregate([
+            {
+                $unwind: '$favoriteExercises',
+            },
+            {
+                $group: {
+                    _id: '$favoriteExercises',
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $sort: { count: -1 },
+            },
+            {
+                $limit: 6,
+            },
+        ]);
+
+        const exerciseIds = mostFavoriteExercises.map((exercise) => exercise._id);
+
+        response.status(200).json({ success: true, exerciseIds });
+    } catch (error) {
+        next(error);
+    }
+};
