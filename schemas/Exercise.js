@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-// TODO: revisit
-// TODO: class plan
 const ExerciseSchema = new mongoose.Schema({
 	id: {
 		type: String,

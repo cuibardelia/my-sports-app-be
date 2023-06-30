@@ -4,4 +4,3 @@ exports.getPrivateData = (request, response, next) => {
         data: 'Access granted to this route',
     });
 };
-// TODO: reuse

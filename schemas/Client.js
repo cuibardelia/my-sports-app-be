@@ -66,7 +66,6 @@ ClientSchema.methods.getSignedToken = function() {
 
 ClientSchema.methods.getResetPassToken = function() {
     const resetToken = crypto.randomBytes(20).toString('hex');
-    // TODO: doc
     this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
     // makes sure it expires in 30 minutes;
     this.resetPasswordExpire = Date.now() + 30 * (60 * 1000);

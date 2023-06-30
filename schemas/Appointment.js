@@ -35,11 +35,4 @@ const AppointmentSchema = new mongoose.Schema({
 
 const Appointment = mongoose.model('Appointment', AppointmentSchema);
 
-// TODO
-// AppointmentSchema.path('endDate').validate(function() {
-// 	const twoHours = 2 * 60 * 60 * 1000; // Convert 2 hours to milliseconds
-// 	const timeDifference = this.endDate - this.startDate;
-// 	return timeDifference <= twoHours; // Check if the time difference is not higher than 2 hours
-// }, 'The duration between start date and end date must not exceed 2 hours.');
-
 module.exports = Appointment;

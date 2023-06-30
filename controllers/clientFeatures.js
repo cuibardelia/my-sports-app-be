@@ -34,60 +34,112 @@ exports.addPersonalTrainer = async (request, response, next) => {
 	}
 };
 
+// exports.updateSettings = async (request, response, next) => {
+// 	const { user } = request;
+// 	const { height } = request.body;
+//
+// 	const monthlyDates = [
+// 		"2022-07-22T18:34:32.058+00:00",
+// 		"2022-06-22T18:34:32.058+00:00",
+// 		"2022-08-18T18:34:32.058+00:00",
+// 		"2022-09-19T18:34:32.058+00:00",
+// 		"2022-10-20T18:34:32.058+00:00",
+// 		"2022-11-10T18:34:32.058+00:00",
+// 		"2022-12-11T18:34:32.058+00:00",
+// 		"2023-01-03T18:34:32.058+00:00",
+// 		"2023-02-08T18:34:32.058+00:00",
+// 	];
+//
+// 	const weights = [
+// 		102, 99, 83, 77, 73, 66, 68, 62, 60,
+// 	];
+//
+// 	try {
+// 		const goalWeight = 57;
+//
+// 		const parsedDateOfBirth = moment(user.dateOfBirth).startOf('day').toDate();
+//
+// 		const date = "2023-01-22T18:34:32.058+00:00";
+//
+// 		// Add the first entry to user.objectives using values from arrays
+// 		user.objectives = [
+// 			{
+// 				initialWeight: weights[0],
+// 				dateInitial: monthlyDates[0],
+// 				goalWeight
+// 			}
+// 		];
+//
+// 		for (let i = 1; i < monthlyDates.length; i++) {
+// 			const weightStat = {
+// 				date: monthlyDates[i],
+// 				value: weights[i]
+// 			};
+// 			user.weightStats.push(weightStat);
+// 			user.currentWeight = weights[i];
+// 			if (goalWeight === weights[i]) {
+// 				user.objectives[0].dateAchieved = monthlyDates[i];
+// 			}
+// 		}
+//
+//
+// 		user.goalWeight = goalWeight;
+//
+// 		user.height = height;
+//
+// 		user.dateOfBirth = parsedDateOfBirth;
+//
+// 		user.age = getAge(user.dateOfBirth);
+//
+// 		await user.save();
+//
+// 		return response.status(200).json({ success: true, user });
+// 	} catch (error) {
+// 		next(error);
+// 	}
+// };
+
 exports.updateSettings = async (request, response, next) => {
 	const { user } = request;
-	const monthlyDates = [
-		"2022-07-21T18:34:32.058+00:00",
-		"2022-06-07T18:34:32.058+00:00",
-		"2022-08-13T18:34:32.058+00:00",
-		"2022-09-13T18:34:32.058+00:00",
-		"2022-10-25T18:34:32.058+00:00",
-		"2022-11-11T18:34:32.058+00:00",
-		"2022-12-10T18:34:32.058+00:00",
-		"2023-01-02T18:34:32.058+00:00",
-		"2023-02-06T18:34:32.058+00:00",
-		"2023-03-28T18:34:32.058+00:00",
-		"2023-04-19T18:34:32.058+00:00",
-		"2023-05-10T18:34:32.058+00:00"
-	];
-
-	const weights = [
-		108, 104, 101, 99, 96, 97, 92, 86, 84, 80, 78, 56
-	];
+	const { currentWeight, goalWeight, height, dateOfBirth } = request.body;
 
 	try {
-		const goalWeight = 78;
-
-		const parsedDateOfBirth = moment(user.dateOfBirth).startOf('day').toDate();
-
-		const date = "2023-01-22T18:34:32.058+00:00";
-
-		// Add the first entry to user.objectives using values from arrays
-		user.objectives = [
-			{
-				initialWeight: weights[0],
-				dateInitial: monthlyDates[0],
-				goalWeight
+		// NEW OBJECTIVE
+		if (goalWeight !== user.goalWeight) {
+			const objective = {
+				initialWeight: currentWeight,
+				dateInitial: new Date(),
+				goalWeight,
 			}
-		];
-
-		for (let i = 1; i < monthlyDates.length; i++) {
-			const weightStat = {
-				date: monthlyDates[i],
-				value: weights[i]
-			};
-			user.weightStats.push(weightStat);
-			user.currentWeight = weights[i];
-			if (goalWeight === weights[i]) {
-				user.objectives[0].dateAchieved = monthlyDates[i];
+			// FIRST OBJECTIVE
+			if (!user.objectives?.length) {
+				user.objectives = [objective];
+			} else {
+				// SOME NEW OBJECTIVE
+				user.objectives.push(objective);
+			}
+		} else if (currentWeight !== user.currentWeight) { 	// NEW STAT
+			// LATEST OBJECTIVE ATTAINED
+			if (currentWeight === goalWeight && user.objectives.length) {
+				user.objectives[user.objectives.length - 1].dateAchieved = new Date();
 			}
 		}
 
+		const weightStat = {
+			date: new Date(),
+			value: currentWeight
+		};
 
-		user.goalWeight = goalWeight;
+		// Add a new weight stat whenever the weight fluctuates
+		if (!currentWeight !== user.currentWeight) {
+			user.weightStats.push(weightStat);
+		}
 
+		user.currentWeight = currentWeight || user.currentWeight;
+		user.goalWeight = goalWeight || user.goalWeight;
+		user.height = height;
+		const parsedDateOfBirth = moment(dateOfBirth || user.dateOfBirth).startOf('day').toDate();
 		user.dateOfBirth = parsedDateOfBirth;
-
 		user.age = getAge(user.dateOfBirth);
 
 		await user.save();

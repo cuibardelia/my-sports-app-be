@@ -11,15 +11,12 @@ cloudinary.config({
 	api_secret: process.env.CLOUD_SECRET,
 });
 
-// TODO: admin receives a request via email and proceeds to delete
 exports.deleteUser = async (request, response, next) => {
 	try {
 		const { _id, userType } = request.body;
 		const model = getModel(userType);
 		const user = await model.findOne({ _id });
 
-		// TODO: check if need to verify db roles for this one
-		// FIXME: delete from connected users documents as well
 		if (user) {
 			await user.remove();
 			return response.status(200).json({ message: 'User deleted successfully.' });

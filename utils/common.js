@@ -8,8 +8,6 @@ const Client = require('../schemas/Client');
 const Trainer = require('../schemas/Trainer');
 const Admin = require('../schemas/Admin');
 
-// TODO: retry w proper binding
-// :)))) no arrow fn...
 const hashPasswordAndSetUserType = async function (next) {
 	if (!this.isModified('password')) {
 		return next();
@@ -104,4 +102,11 @@ const getAge = (ageString) => {
 	return moment().diff(birth, 'years');
 };
 
-module.exports = { getModel, checkPassword, hashPasswordAndSetUserType, getSignedToken, getResetPassToken, getUserSecret, getAge  };
+const isDayApart = (latestStat) => {
+	const currentDate = new Date();
+	const timeDiff = currentDate.getTime() - latestStat.date.getTime();
+	const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+	return daysDiff >= 1;
+}
+
+module.exports = { getModel, checkPassword, hashPasswordAndSetUserType, getSignedToken, getResetPassToken, getUserSecret, getAge, isDayApart  };

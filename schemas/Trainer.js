@@ -18,7 +18,6 @@ const TrainerSchema = new mongoose.Schema({
 	},
 	specialties: {
 		type: [String],
-		// TODO: reuse this for Classes (names) -> get list of trainers fit for a class
 		enum: ['HIIT', 'Pilates', 'Body Pump', 'Zumba', 'Circuit Training', 'TRX', 'Body Combat', 'Core', 'Rebounder'],
 		required: false,
 	},

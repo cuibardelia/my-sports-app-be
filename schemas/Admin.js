@@ -48,7 +48,6 @@ AdminSchema.pre('save', async function(next) {
 	// save the new hashed password, then save the document
 	this.password = await bcrypt.hash(this.password, salt);
 	this.userType = 'admin';
-	// TODO: RIGHTS + DELETE USER
 	next();
 	} catch (error) {
 		next(error);

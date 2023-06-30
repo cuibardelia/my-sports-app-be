@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const moment = require('moment-timezone');
 moment.tz.setDefault('UTC');
 
-// TODO: better email regex
 const UserSchema = new mongoose.Schema({
 	createdAt: { type: Date, default: Date.now },
 	lastName: {

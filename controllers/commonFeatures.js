@@ -169,7 +169,6 @@ const getObjectiveAttainers = async (request, response, next) => {
 
 		const result = clients.map((client) => {
 			const { username, picUrl, objectives } = client;
-			// TODO: latest objective
 			const { dateAchieved, initialWeight, goalWeight } = objectives[0];
 			const weightDifference = initialWeight - goalWeight;
 			const weightStatus = weightDifference > 0 ? `${weightDifference}kg lost` : `${Math.abs(weightDifference)}kg gained`;

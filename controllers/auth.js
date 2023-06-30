@@ -208,7 +208,7 @@ exports.getObjectiveStats = async (request, response, next) => {
             {
                 $group: {
                     _id: null,
-                    averageTimeToAchieve: { $avg: '$timeToAchieve' }, // Calculate average time to achieve
+                    averageTimeToAchieve: { $avg: '$timeToAchieve' },
                 },
             },
         ]);
@@ -227,26 +227,6 @@ exports.getObjectiveStats = async (request, response, next) => {
 exports.getAgeIntervals = async (request, response, next) => {
     try {
         const ageIntervals = await Client.aggregate([
-            {
-                $addFields: {
-                    age: {
-                        $subtract: [
-                            new Date(),
-                            { $toDate: '$dateOfBirth' }
-                        ]
-                    }
-                }
-            },
-            {
-                $addFields: {
-                    age: {
-                        $divide: [
-                            '$age',
-                            1000 * 60 * 60 * 24 * 365
-                        ]
-                    }
-                }
-            },
             {
                 $group: {
                     _id: null,
@@ -285,12 +265,51 @@ exports.getAgeIntervals = async (request, response, next) => {
                                 0
                             ]
                         }
+                    },
+                    total: { $sum: 1 }
+                }
+            },
+            {
+                $addFields: {
+                    interval_18_30: {
+                        $multiply: [{ $divide: ['$interval_18_30', '$total'] }, 100]
+                    },
+                    interval_30_45: {
+                        $multiply: [{ $divide: ['$interval_30_45', '$total'] }, 100]
+                    },
+                    interval_45_60: {
+                        $multiply: [{ $divide: ['$interval_45_60', '$total'] }, 100]
+                    },
+                    interval_over_60: {
+                        $multiply: [{ $divide: ['$interval_over_60', '$total'] }, 100]
                     }
+                }
+            },
+            {
+                $addFields: {
+                    interval_18_30: { $trunc: '$interval_18_30' },
+                    interval_30_45: { $trunc: '$interval_30_45' },
+                    interval_45_60: { $trunc: '$interval_45_60' },
+                    interval_over_60: { $trunc: '$interval_over_60' }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    interval_18_30: { $ifNull: ['$interval_18_30', 0] },
+                    interval_30_45: { $ifNull: ['$interval_30_45', 0] },
+                    interval_45_60: { $ifNull: ['$interval_45_60', 0] },
+                    interval_over_60: { $ifNull: ['$interval_over_60', 0] }
                 }
             }
         ]);
 
-        const result = ageIntervals.length > 0 ? ageIntervals[0] : { interval_18_30: 0, interval_30_45: 0, interval_45_60: 0, interval_over_60: 0 };
+        const result = ageIntervals.length > 0 ? ageIntervals[0] : {
+            interval_18_30: 0,
+            interval_30_45: 0,
+            interval_45_60: 0,
+            interval_over_60: 0
+        };
 
         return response.status(200).json({ success: true, ageIntervals: result });
 
